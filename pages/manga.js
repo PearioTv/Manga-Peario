@@ -12,15 +12,27 @@ export default function MangaPage({ toggleTheme, dark }) {
 
   useEffect(() => {
     if (!url) return;
-    setLoading(true);
-    fetch(`/api/manga?url=${url}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) setData(d.data);
-        else setError(d.error);
-      })
-      .catch(() => setError('فشل التحميل'))
-      .finally(() => setLoading(false));
+    
+    const fetchMangaDetails = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await fetch(`/api/manga?url=${encodeURIComponent(url)}`);
+        const d = await res.json();
+        
+        if (d.success) {
+          setData(d.data);
+        } else {
+          setError(d.error || 'فشل تحميل المانجا');
+        }
+      } catch (err) {
+        setError('فشل الاتصال بالخادم');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMangaDetails();
   }, [url]);
 
   const goChapter = (chapUrl) => {
