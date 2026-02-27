@@ -13,16 +13,28 @@ export default function ChapterPage({ toggleTheme, dark }) {
 
   useEffect(() => {
     if (!url) return;
-    setLoading(true);
-    setData(null);
-    fetch(`/api/chapter?url=${url}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) setData(d.data);
-        else setError(d.error);
-      })
-      .catch(() => setError('فشل تحميل الفصل'))
-      .finally(() => setLoading(false));
+    
+    const fetchChapter = async () => {
+      setLoading(true);
+      setData(null);
+      setError('');
+      try {
+        const res = await fetch(`/api/chapter?url=${encodeURIComponent(url)}`);
+        const d = await res.json();
+        
+        if (d.success) {
+          setData(d.data);
+        } else {
+          setError(d.error || 'فشل تحميل الفصل');
+        }
+      } catch (err) {
+        setError('فشل الاتصال بالخادم');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChapter();
   }, [url]);
 
   const goChapter = (chapUrl) => {
@@ -78,41 +90,41 @@ export default function ChapterPage({ toggleTheme, dark }) {
       {error && <div className="error-box" style={{ margin: '32px auto', maxWidth: 600 }}>⚠️ {error}</div>}
 
       {data && (
-        <div className={`reader-images ${mode}`}>
-          {data.pages.length === 0 && (
-            <div className="empty">لا توجد صور لهذا الفصل</div>
-          )}
-          {data.pages.map((src, i) => (
-            <img
-              key={i}
-              className="page-img"
-              src={src}
-              alt={`صفحة ${i + 1}`}
-              loading="lazy"
-              onError={e => { e.target.style.display = 'none'; }}
-            />
-          ))}
-        </div>
-      )}
+        <>
+          <div className={`reader-images ${mode}`}>
+            {data.pages.length === 0 && (
+              <div className="empty">لا توجد صور لهذا الفصل</div>
+            )}
+            {data.pages.map((src, i) => (
+              <img
+                key={i}
+                className="page-img"
+                src={src}
+                alt={`صفحة ${i + 1}`}
+                loading="lazy"
+                onError={e => { e.target.style.display = 'none'; }}
+              />
+            ))}
+          </div>
 
-      {/* Bottom nav */}
-      {data && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, padding: '24px 0 40px' }}>
-          <button
-            className="btn btn-ghost"
-            onClick={() => goChapter(data.prevChap)}
-            disabled={!data.prevChap}
-          >
-            ← الفصل السابق
-          </button>
-          <button
-            className="btn"
-            onClick={() => goChapter(data.nextChap)}
-            disabled={!data.nextChap}
-          >
-            الفصل التالي →
-          </button>
-        </div>
+          {/* Bottom nav */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, padding: '24px 0 40px' }}>
+            <button
+              className="btn btn-ghost"
+              onClick={() => goChapter(data.prevChap)}
+              disabled={!data.prevChap}
+            >
+              ← الفصل السابق
+            </button>
+            <button
+              className="btn"
+              onClick={() => goChapter(data.nextChap)}
+              disabled={!data.nextChap}
+            >
+              الفصل التالي →
+            </button>
+          </div>
+        </>
       )}
     </>
   );
