@@ -1,29 +1,26 @@
-import { searchManga } from '../../lib/scraper';
-
-export default async function handler(req, res) {
-  // تفعيل CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  
-  try {
-    const { q } = req.query;
-    if (!q) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing query param q' 
-      });
-    }
-
-    const data = await searchManga(q);
-    res.status(200).json({ 
-      success: true, 
-      data,
-      count: data.length 
-    });
-  } catch (err) {
-    console.error('Search API error:', err);
-    res.status(500).json({ 
-      success: false, 
-      error: err.message || 'فشل البحث' 
-    });
-  }
-}
+// في قسم عرض النتائج
+{!loading && results.length > 0 && (
+  <>
+    <div style={{ 
+      background: 'var(--surface)', 
+      padding: '12px 16px', 
+      borderRadius: 'var(--radius)',
+      marginBottom: 20,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    }}>
+      <span>🔍 تم العثور على <strong>{results.length}</strong> نتيجة</span>
+      {results.length === 24 && (
+        <span style={{ color: 'var(--muted)', fontSize: '0.8rem' }}>
+          قد توجد نتائج إضافية
+        </span>
+      )}
+    </div>
+    <div className="manga-grid">
+      {results.map((m, i) => (
+        <MangaCard key={i} {...m} />
+      ))}
+    </div>
+  </>
+)}
