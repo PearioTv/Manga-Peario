@@ -4,7 +4,9 @@ export default function MangaCard({ title, cover, latestChap, link }) {
   const router = useRouter();
 
   const go = () => {
-    router.push(`/manga?url=${encodeURIComponent(link)}`);
+    if (link) {
+      router.push(`/manga?url=${encodeURIComponent(link)}`);
+    }
   };
 
   return (
