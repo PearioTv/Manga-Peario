@@ -8,7 +8,9 @@ export default function Navbar({ toggleTheme, dark }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (q.trim()) router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+    if (q.trim()) {
+      router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+    }
   };
 
   return (
